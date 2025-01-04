@@ -17,6 +17,7 @@ require_once './db/AccesoDatos.php';
 
 require_once './controllers/UsuarioController.php';
 require_once './controllers/ProductoController.php';
+require_once './controllers/VentaController.php';
 
 // Load ENV
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
@@ -36,16 +37,22 @@ $app->addBodyParsingMiddleware();
 $app->group('/tienda', function (RouteCollectorProxy $group) {
   $group->post('/alta', \ProductoController::class . ':CargarUno');
   //$group->post('/consulta', \ProductoController::class . ':TraerTodos');
-  $group->get('[/]', \ProductoController::class . ':TraerTodos');
+  $group->get('/consulta', \ProductoController::class . ':TraerTodos');
   $group->post('/consulta/numero_de_producto/{id}', \ProductoController::class . ':TraerUno');
-  $group->post('/consulta/', \ProductoController::class . ':TraerUnoPorNombreMarcaTipo');
+  $group->post('/consulta/nombre/marca/tipo', \ProductoController::class . ':TraerUnoPorNombreMarcaTipo');
 });
 
+$app->group('/ventas', function (RouteCollectorProxy $group) {
+  $group->post('/alta', \VentaController::class . ':CargarUno');
+});
+
+/*
 $app->get('[/]', function (Request $request, Response $response) {
   $payload = json_encode(["mensaje" => "Slim Framework 4 PHP"]);
 
   $response->getBody()->write($payload);
   return $response->withHeader('Content-Type', 'application/json');
 });
+*/
 
 $app->run();

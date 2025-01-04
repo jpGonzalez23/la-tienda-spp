@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 02-01-2025 a las 22:14:32
+-- Tiempo de generación: 04-01-2025 a las 17:02:40
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -37,6 +37,15 @@ CREATE TABLE `producto` (
   `imagen` varchar(60) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Volcado de datos para la tabla `producto`
+--
+
+INSERT INTO `producto` (`id`, `nombre`, `tipo`, `marca`, `stock`, `precio`, `imagen`) VALUES
+(1, 'moto G54', 'Smartphone', 'Motorola', 10000, 200000, NULL),
+(2, 'Tab M8 4ta generacion', 'Tablet', 'Lenovo', 10000, 200000, NULL),
+(3, 'iPhone 14', 'Smartphone', 'Apple', 100, 2000, NULL);
+
 -- --------------------------------------------------------
 
 --
@@ -49,7 +58,10 @@ CREATE TABLE `vendedor` (
   `nombre` varchar(30) NOT NULL,
   `tipo` varchar(30) NOT NULL,
   `marca` varchar(30) NOT NULL,
-  `stock` varchar(30) NOT NULL
+  `stock` varchar(30) NOT NULL,
+  `precio_total` float NOT NULL,
+  `fecha_venta` datetime NOT NULL,
+  `numerpo_pedido` varchar(30) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -76,7 +88,7 @@ ALTER TABLE `vendedor`
 -- AUTO_INCREMENT de la tabla `producto`
 --
 ALTER TABLE `producto`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de la tabla `vendedor`

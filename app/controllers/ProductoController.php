@@ -65,8 +65,41 @@ class ProductoController extends Producto implements IApiUsable
         return $response->withHeader('Content-Type', 'application/json');
     }
 
-    public function BorrarUno($request, $response, $args) {}
-    public function ModificarUno($request, $response, $args) {}
+    public function BorrarUno($request, $response, $args) {
+        $id = $args['id'];
+        $producto = Producto::read($id);
+
+        if ($producto) {
+            Producto::delete($id);
+            $playload = json_encode(["mensaje" => "Producto eliminado", "producto" => $producto]);
+        } else {
+            $playload = json_encode(["mensaje" => "Producto no encontrado"]);
+        }
+
+        $response->getBody()->write($playload);
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+    public function ModificarUno($request, $response, $args) {
+        $id = $args['id'];
+        $params = $request->getParsedBody();
+
+        $producto = Producto::read($id);
+
+        if ($producto) {
+            $producto->setNombre($params['nombre']);
+            $producto->setTipo($params['tipo']);
+            $producto->setMarca($params['marca']);
+            $producto->setStock($params['stock']);
+            $producto->setPrecio($params['precio']);
+            Producto::update($producto);
+            $playload = json_encode(["mensaje" => "Producto modificado", "producto" => $producto]);
+        } else {
+            $playload = json_encode(["mensaje" => "Producto no encontrado"]);
+        }
+
+        $response->getBody()->write($playload);
+        return $response->withHeader('Content-Type', 'application/json');
+    }
 
     public function TraerUno($request, $response, $args)
     {

@@ -106,105 +106,149 @@ class Producto implements ICrud
 
     public static function create($data)
     {
-        $db = AccesoDatos::obtenerInstancia();
-        $query = $db->prepararConsulta("INSERT INTO producto (nombre, tipo, marca, stock, precio, imagen) VALUES (:nombre, :tipo, :marca, :stock, :precio, :imagen)");
+        try {
+            $db = AccesoDatos::obtenerInstancia();
+            $query = $db->prepararConsulta("INSERT INTO producto (nombre, tipo, marca, stock, precio, imagen) VALUES (:nombre, :tipo, :marca, :stock, :precio, :imagen)");
 
-        $query->bindValue(':nombre', $data->getNombre(), PDO::PARAM_STR);
-        $query->bindValue(':tipo', $data->getTipo(), PDO::PARAM_STR);
-        $query->bindValue(':marca', $data->getMarca(), PDO::PARAM_STR);
-        $query->bindValue(':stock', $data->getStock(), PDO::PARAM_INT);
-        $query->bindValue(':precio', $data->getPrecio(), PDO::PARAM_STR);
-        $query->bindValue(':imagen', $data->getImagen(), PDO::PARAM_STR);
+            $query->bindValue(':nombre', $data->getNombre(), PDO::PARAM_STR);
+            $query->bindValue(':tipo', $data->getTipo(), PDO::PARAM_STR);
+            $query->bindValue(':marca', $data->getMarca(), PDO::PARAM_STR);
+            $query->bindValue(':stock', $data->getStock(), PDO::PARAM_INT);
+            $query->bindValue(':precio', $data->getPrecio(), PDO::PARAM_STR);
+            $query->bindValue(':imagen', $data->getImagen(), PDO::PARAM_STR);
 
-        $query->execute();
+            $query->execute();
 
-        return $db->obtenerUltimoId();
+            return $db->obtenerUltimoId();
+        } catch (Exception $e) {
+            return ["mensaje" => "Error al crear el producto", "error" => $e->getMessage()];
+        }
     }
 
     public static function readAll()
     {
-        $db = AccesoDatos::obtenerInstancia();
-        $query = $db->prepararConsulta("SELECT * FROM producto");
-        $query->execute();
+        try {
+            $db = AccesoDatos::obtenerInstancia();
+            $query = $db->prepararConsulta("SELECT * FROM producto");
+            $query->execute();
 
-        return $query->fetchAll(PDO::FETCH_ASSOC);
+            return $query->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            return ["mensaje" => "Error al leer los productos", "error" => $e->getMessage()];
+        }
     }
 
     public static function read($id)
     {
-        $db = AccesoDatos::obtenerInstancia();
-        $query = $db->prepararConsulta("SELECT * FROM producto WHERE id = :id");
-        $query->bindValue(':id', $id, PDO::PARAM_INT);
-        $query->execute();
+        try {
+            $db = AccesoDatos::obtenerInstancia();
+            $query = $db->prepararConsulta("SELECT * FROM producto WHERE id = :id");
+            $query->bindValue(':id', $id, PDO::PARAM_INT);
+            $query->execute();
 
-        return $query->fetch(PDO::FETCH_ASSOC);
+            return $query->fetch(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            return ["mensaje" => "Error al leer el producto", "error" => $e->getMessage()];
+        }
     }
 
     public static function update($data)
     {
-        $db = AccesoDatos::obtenerInstancia();
-        $query = $db->prepararConsulta("UPDATE producto SET nombre = :nombre, tipo = :tipo, marca = :marca, stock = :stock, precio = :precio WHERE id = :id");
-        $query->bindValue(':id', $data->getId(), PDO::PARAM_INT);
-        $query->bindValue(':nombre', $data->getNombre(), PDO::PARAM_STR);
-        $query->bindValue(':tipo', $data->getTipo(), PDO::PARAM_STR);
-        $query->bindValue(':marca', $data->getMarca(), PDO::PARAM_STR);
-        $query->bindValue(':stock', $data->getStock(), PDO::PARAM_INT);
-        $query->bindValue(':precio', $data->getPrecio(), PDO::PARAM_INT);
-        $query->execute();
+        try {
+            $db = AccesoDatos::obtenerInstancia();
+            $query = $db->prepararConsulta("UPDATE producto SET nombre = :nombre, tipo = :tipo, marca = :marca, stock = :stock, precio = :precio WHERE id = :id");
+            $query->bindValue(':id', $data->getId(), PDO::PARAM_INT);
+            $query->bindValue(':nombre', $data->getNombre(), PDO::PARAM_STR);
+            $query->bindValue(':tipo', $data->getTipo(), PDO::PARAM_STR);
+            $query->bindValue(':marca', $data->getMarca(), PDO::PARAM_STR);
+            $query->bindValue(':stock', $data->getStock(), PDO::PARAM_INT);
+            $query->bindValue(':precio', $data->getPrecio(), PDO::PARAM_INT);
+            $query->execute();
+        } catch (Exception $e) {
+            return ["mensaje" => "Error al actualizar el producto", "error" => $e->getMessage()];
+        }
     }
 
     public static function delete($id)
     {
-        $db = AccesoDatos::obtenerInstancia();
-        $query = $db->prepararConsulta("DELETE FROM productos WHERE id = :id");
-        $query->bindValue(':id', $id, PDO::PARAM_INT);
-        $query->execute();
+        try {
+            $db = AccesoDatos::obtenerInstancia();
+            $query = $db->prepararConsulta("DELETE FROM productos WHERE id = :id");
+            $query->bindValue(':id', $id, PDO::PARAM_INT);
+            $query->execute();
+        } catch (Exception $e) {
+            return ["mensaje" => "Error al eliminar el producto", "error" => $e->getMessage()];
+        }
     }
 
     public static function findByMarcaAndTipo($marca, $tipo)
     {
-        $db = AccesoDatos::obtenerInstancia();
-        $query = $db->prepararConsulta("SELECT * FROM producto WHERE marca = :marca AND tipo = :tipo");
-        $query->bindValue(':marca', $marca, PDO::PARAM_STR);
-        $query->bindValue(':tipo', $tipo, PDO::PARAM_STR);
-        $query->execute();
+        try {
+            $db = AccesoDatos::obtenerInstancia();
+            $query = $db->prepararConsulta("SELECT * FROM producto WHERE marca = :marca AND tipo = :tipo");
+            $query->bindValue(':marca', $marca, PDO::PARAM_STR);
+            $query->bindValue(':tipo', $tipo, PDO::PARAM_STR);
+            $query->execute();
 
-        return $query->fetchObject('Producto');
+            return $query->fetchObject('Producto');
+        } catch (Exception $e) {
+            return ["mensaje" => "Error al buscar el producto", "error" => $e->getMessage()];
+        }
     }
 
-    public static function findByNombreAndMarcaAndTipo($nombre, $marca, $tipo) {
-        $db = AccesoDatos::obtenerInstancia();
-        $query = $db->prepararConsulta("SELECT * FROM producto WHERE nombre = :nombre AND marca = :marca AND tipo = :tipo");
-        $query->bindValue(':nombre', $nombre, PDO::PARAM_STR);
-        $query->bindValue(':marca', $marca, PDO::PARAM_STR);
-        $query->bindValue(':tipo', $tipo, PDO::PARAM_STR);
-        $query->execute();
+    public static function findByNombreAndMarcaAndTipo($nombre, $marca, $tipo)
+    {
+        try {
+            $db = AccesoDatos::obtenerInstancia();
+            $query = $db->prepararConsulta("SELECT * FROM producto WHERE nombre = :nombre AND marca = :marca AND tipo = :tipo");
+            $query->bindValue(':nombre', $nombre, PDO::PARAM_STR);
+            $query->bindValue(':marca', $marca, PDO::PARAM_STR);
+            $query->bindValue(':tipo', $tipo, PDO::PARAM_STR);
+            $query->execute();
 
-        return $query->fetch(PDO::FETCH_ASSOC);
+            return $query->fetchObject('Producto');
+        } catch (Exception $e) {
+            return ["mensaje" => "Error al buscar el producto", "error" => $e->getMessage()];
+        }
     }
 
-    public static function findByNombre($nombre) {
-        $db = AccesoDatos::obtenerInstancia();
-        $query = $db->prepararConsulta("SELECT * FROM producto WHERE nombre = :nombre");
-        $query->bindValue(':nombre', $nombre, PDO::PARAM_STR);
-        $query->execute();
+    public static function findByNombre($nombre)
+    {
+        try {
+            $db = AccesoDatos::obtenerInstancia();
+            $query = $db->prepararConsulta("SELECT * FROM producto WHERE nombre = :nombre");
+            $query->bindValue(':nombre', $nombre, PDO::PARAM_STR);
+            $query->execute();
 
-        return $query->fetch(PDO::FETCH_ASSOC) !== false;
+            return $query->fetch(PDO::FETCH_ASSOC) !== false;
+        } catch (Exception $e) {
+            return ["mensaje" => "Error al buscar el producto", "error" => $e->getMessage()];
+        }
     }
 
-    public static function findByMarca($marca) {
-        $db = AccesoDatos::obtenerInstancia();
-        $query = $db->prepararConsulta("SELECT * FROM producto WHERE marca = :marca");
-        $query->bindValue(':marca', $marca, PDO::PARAM_STR);
-        $query->execute();
-        return $query->fetch(PDO::FETCH_ASSOC) !== false;
+    public static function findByMarca($marca)
+    {
+        try {
+            $db = AccesoDatos::obtenerInstancia();
+            $query = $db->prepararConsulta("SELECT * FROM producto WHERE marca = :marca");
+            $query->bindValue(':marca', $marca, PDO::PARAM_STR);
+            $query->execute();
+            return $query->fetch(PDO::FETCH_ASSOC) !== false;
+        } catch (Exception $e) {
+            return ["mensaje" => "Error al buscar el producto", "error" => $e->getMessage()];
+        }
     }
 
-    public static function findByTipo($tipo) {
-        $db = AccesoDatos::obtenerInstancia();
-        $query = $db->prepararConsulta("SELECT * FROM producto WHERE tipo = :tipo");
-        $query->bindValue(':tipo', $tipo, PDO::PARAM_STR);
-        $query->execute();
-        return $query->fetch(PDO::FETCH_ASSOC) !== false;
+    public static function findByTipo($tipo)
+    {
+        try {
+            $db = AccesoDatos::obtenerInstancia();
+            $query = $db->prepararConsulta("SELECT * FROM producto WHERE tipo = :tipo");
+            $query->bindValue(':tipo', $tipo, PDO::PARAM_STR);
+            $query->execute();
+            return $query->fetch(PDO::FETCH_ASSOC) !== false;
+        } catch (Exception $e) {
+            return ["mensaje" => "Error al buscar el producto", "error" => $e->getMessage()];
+        }
     }
 }
