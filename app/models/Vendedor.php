@@ -15,6 +15,7 @@ class Vendedor implements ICrud
     private $precio_total;
     private $fecha_venta;
     private $numero_pedido;
+    private $imagen;
 
     public function __construct() {}
 
@@ -144,12 +145,26 @@ class Vendedor implements ICrud
         }
     }
 
+    public function getImagen()
+    {
+        return $this->imagen;
+    }
+
+    public function setImagen($imagen)
+    {
+        if (!empty($imagen)) {
+            $this->imagen = $imagen;
+        } else {
+            throw new Exception("La imagen no puede estar vacia");
+        }
+    }
+
 
     public static function create($data)
     {
         try {
             $db = AccesoDatos::obtenerInstancia();
-            $query = $db->prepararConsulta("INSERT INTO vendedor (mail, nombre, tipo, marca, stock, precio_total, fecha_venta, numero_pedido) VALUES (:mail, :nombre, :tipo, :marca, :stock, :precio_total, :fecha_venta, :numero_pedido)");
+            $query = $db->prepararConsulta("INSERT INTO vendedor (mail, nombre, tipo, marca, stock, precio_total, fecha_venta, numero_pedido, imagen) VALUES (:mail, :nombre, :tipo, :marca, :stock, :precio_total, :fecha_venta, :numero_pedido, :imagen)");
             $query->bindValue(':mail', $data->getMail(), PDO::PARAM_STR);
             $query->bindValue(':nombre', $data->getNombreProducto(), PDO::PARAM_STR);
             $query->bindValue(':tipo', $data->getTipoProducto(), PDO::PARAM_STR);
@@ -158,7 +173,10 @@ class Vendedor implements ICrud
             $query->bindValue(':precio_total', $data->getPrecioTotal(), PDO::PARAM_INT);
             $query->bindValue(':fecha_venta', $data->getFechaVenta(), PDO::PARAM_STR);
             $query->bindValue(':numero_pedido', $data->getNumeroPedido(), PDO::PARAM_STR);
+            $query->bindValue(':imagen', $data->getImagen(), PDO::PARAM_STR);
+            
             $query->execute();
+
             return $db->obtenerUltimoId();
         } catch (Exception $e) {
             return ["Error" => "No se pudo crear el vendedor", "Exception" => $e->getMessage()];
@@ -174,6 +192,7 @@ class Vendedor implements ICrud
 
             return $query->fetch(PDO::FETCH_ASSOC);
         } catch (Exception $e) {
+            return ["Error" => "No se pudo leer el vendedor", "Exception" => $e->getMessage()];
         }
     }
     public static function readAll()
@@ -212,6 +231,94 @@ class Vendedor implements ICrud
             $query->execute();
         } catch (Exception $e) {
             return ["Error" => "No se pudo borrar el vendedor", "Exception" => $e->getMessage()];
+        }
+    }
+
+    
+    public static function cantidadVendidaPorFecha($fecha) {
+        try {
+            $db = AccesoDatos::obtenerInstancia();
+            $query = $db->prepararConsulta("SELECT * FROM vendedor WHERE fecha_venta = :fecha");
+            $query->bindParam(':fecha', $fecha, PDO::PARAM_STR);
+            $query->execute();
+            return $query->fetchAll(PDO::FETCH_ASSOC)['cantidad_vendida'];
+        } catch (Exception $e) {
+            return ["Error" => "No se pudo leer los vendedores", "Exception" => $e->getMessage()];
+        }
+    }
+
+    public static function ventasPorUsuario($mail){
+        try {
+            $db = AccesoDatos::obtenerInstancia();
+            $query = $db->prepararConsulta("SELECT * FROM vendedor WHERE mail = :mail");
+            $query->bindParam(':mail', $mail, PDO::PARAM_STR);
+            $query->execute();
+            return $query->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            return ["Error" => "No se pudo leer los vendedores", "Exception" => $e->getMessage()];
+        }
+    }
+
+    public static function ventasPorTipo($tipo){
+        try {
+            $db = AccesoDatos::obtenerInstancia();
+            $query = $db->prepararConsulta("SELECT * FROM vendedor WHERE tipo = :tipo");
+            $query->bindParam(':tipo', $tipo, PDO::PARAM_STR);
+            $query->execute();
+            return $query->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            return ["Error" => "No se pudo leer los vendedores", "Exception" => $e->getMessage()];
+        }
+    }
+
+    public static function ventasEntreValores($min, $max) {
+        try {
+            $db = AccesoDatos::obtenerInstancia();
+            $query = $db->prepararConsulta("SELECT * FROM vendedor WHERE precio_total BETWEEN :min AND :max");
+            $query->bindParam(':min', $min, PDO::PARAM_INT);
+            $query->bindParam(':max', $max, PDO::PARAM_INT);
+            $query->execute();
+            return $query->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            return ["Error" => "No se pudo leer los vendedores", "Exception" => $e->getMessage()];
+        }
+    }
+
+    public static function ingresoPorFecha($fecha) 
+    {
+        try 
+        {
+            $db = AccesoDatos::obtenerInstancia();
+            $query = $db->prepararConsulta("SELECT SUM(precio_total) as ingresos FROM vendedor WHERE DATE(fecha) = :fecha");
+            $query->bindValue(':fecha', $fecha, PDO::PARAM_STR);
+            $query->execute();
+            return $query->fetch(PDO::FETCH_ASSOC)['ingresos'];
+        }
+        catch (Exception $e) 
+        {
+            return ["Error" => "No se pudo leer los vendedores", "Exception" => $e->getMessage()];
+        }
+    }
+
+    public static function ingresosTotales() {
+        try {
+            $db = AccesoDatos::obtenerInstancia();
+            $query = $db->prepararConsulta("SELECT SUM(precio_total) as ingresos FROM vendedor");
+            $query->execute();
+            return $query->fetch(PDO::FETCH_ASSOC)['ingresos'];
+        } catch (Exception $e) {
+            return ["Error" => "No se pudo leer los vendedores", "Exception" => $e->getMessage()];
+        }
+    }
+
+    public static function productosMasVendidos() {
+        try {
+            $db = AccesoDatos::obtenerInstancia();
+            $query = $db->prepararConsulta("SELECT nombre, COUNT(nombre) as cantidad FROM vendedor GROUP BY nombre ORDER BY cantidad DESC LIMIT 1");
+            $query->execute();
+            return $query->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            return ["Error" => "No se pudo leer los vendedores", "Exception" => $e->getMessage()];
         }
     }
 }

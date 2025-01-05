@@ -37,13 +37,20 @@ $app->addBodyParsingMiddleware();
 $app->group('/tienda', function (RouteCollectorProxy $group) {
   $group->post('/alta', \ProductoController::class . ':CargarUno');
   //$group->post('/consulta', \ProductoController::class . ':TraerTodos');
-  $group->get('/consulta', \ProductoController::class . ':TraerTodos');
-  $group->post('/consulta/numero_de_producto/{id}', \ProductoController::class . ':TraerUno');
-  $group->post('/consulta/nombre/marca/tipo', \ProductoController::class . ':TraerUnoPorNombreMarcaTipo');
+  $group->get('/consultar', \ProductoController::class . ':TraerTodos');
+  $group->post('/consultar/numero_de_producto/{id}', \ProductoController::class . ':TraerUno');
+  $group->post('/consultar/nombre/marca/tipo', \ProductoController::class . ':TraerUnoPorNombreMarcaTipo');
 });
 
 $app->group('/ventas', function (RouteCollectorProxy $group) {
   $group->post('/alta', \VentaController::class . ':CargarUno');
+  $group->get('/consultar', \VentaController::class . ':TraerTodos');
+  $group->get('/consultar/numero_de_venta/{id}', \VentaController::class . ':TraerUno');
+  $group->get('/consultar/productos/vendidos', \VentaController::class . ':ProductosVendidos');
+  $group->get('/consultar/ventas/porUsuario/{mail}', \VentaController::class . ':VentasPorUsuario');
+  $group->get('/consultar/ventas/porProducto/{tipo}', \VentaController::class . ':VentasPorProducto');
+  $group->get('/consultar/productos/entreValores/{min}/{max}', \VentaController::class . ':ProductosEntreValores');
+  $group->get('/productos/masVendidos', \VentaController::class . ':ProductosMasVendidos');
 });
 
 /*
