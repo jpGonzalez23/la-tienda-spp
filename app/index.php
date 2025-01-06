@@ -44,13 +44,16 @@ $app->group('/tienda', function (RouteCollectorProxy $group) {
 
 $app->group('/ventas', function (RouteCollectorProxy $group) {
   $group->post('/alta', \VentaController::class . ':CargarUno');
-  $group->get('/consultar', \VentaController::class . ':TraerTodos');
-  $group->get('/consultar/numero_de_venta/{id}', \VentaController::class . ':TraerUno');
-  $group->get('/consultar/productos/vendidos', \VentaController::class . ':ProductosVendidos');
-  $group->get('/consultar/ventas/porUsuario/{mail}', \VentaController::class . ':VentasPorUsuario');
-  $group->get('/consultar/ventas/porProducto/{tipo}', \VentaController::class . ':VentasPorProducto');
-  $group->get('/consultar/productos/entreValores/{min}/{max}', \VentaController::class . ':ProductosEntreValores');
-  $group->get('/productos/masVendidos', \VentaController::class . ':ProductosMasVendidos');
+});
+
+$app->group('/ventas/consultar', function (RouteCollectorProxy $group) {
+  $group->get('[/]', \VentaController::class . ':TraerTodos');
+  $group->get('/productos/vendidos', \VentaController::class . ':TraerProductosVendidos');
+  $group->get('/ventas/por_usuario', \VentaController::class . ':TraerVentasPorUsuario');
+  $group->get('/ventas/por_producto', \VentaController::class . ':traerVentasPorProducto');
+  $group->get('/productos/entreValores', \VentaController::class . ':traerProductosEntreValores');
+  $group->get('/ventas/ingresos', \VentaController::class . ':Ingreso');
+  $group->get('/productos/mas_vendidos', \VentaController::class . ':traerProductosMasVendido');
 });
 
 /*

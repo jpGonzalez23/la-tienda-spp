@@ -112,27 +112,36 @@ class VentaController extends Vendedor  implements IApiUsable
         return $response->withHeader('Content-Type', 'application/json');
     }
 
-    public function trearProductosVendidos($request, $response, $args)
+    public function TraerProductosVendidos($request, $response, $args)
     {
-        $params = $request->getParsedBody();
-        $fecha = $params['fecha'] ?? date('Y-m-d', strtotime('-1 day'));
+        $params = $request->getQueryParams();
+        $fecha = $params['fecha'] ?? date('Y-m-d', strtotime('yesterday'));
 
-        $cantidadVendidas = Vendedor::cantidadVendidaPorFecha($fecha);
+        $productoBuscado = Vendedor::productosVendidosPorFecha($fecha);
 
-        $playload = json_encode(["mensaje" => "Cantidad de productos vendidos", "cantidad" => $cantidadVendidas]);
+        if($productoBuscado) {
+            $playload = json_encode(["mensaje" => "Productos vendidos", "productos" => $productoBuscado]);
+        } else {
+            $playload = json_encode(["mensaje" => "No se encontraron productos"]);
+        }
+
         $response->getBody()->write($playload);
-        
         return $response->withHeader('Content-Type', 'application/json');
     }
 
-    public function traerVentasPorUsuario($request, $response, $args) 
+    public function TraerVentasPorUsuario($request, $response, $args) 
     {
-        $mail = $args['mail'];
-        $ventas = Vendedor::ventasPorUsuario($mail);
-        if($ventas) {
-            $playload = json_encode(["mensaje" => "Ventas encontradas", "ventas" => $ventas]);
-        } else {
-            $playload = json_encode(["mensaje" => "Ventas no encontradas"]);
+        $params = $request->getQueryParams();
+        $mail = $params['mail'] ?? null;
+
+        if(!$mail) {
+            $playload = json_encode(["error" => "el parametro mail es obligatorio"]);
+        }
+        else {
+            $ventas = Vendedor::ventasPorUsuario($mail);
+            $playload = $ventas 
+                ? json_encode(["mensaje" => "Ventas encontradas", "ventas" => $ventas]) 
+                : json_encode(["mensaje" => "No se encontraron ventas para el usuario ingresado"]);
         }
 
         $response->getBody()->write($playload);
@@ -141,14 +150,10 @@ class VentaController extends Vendedor  implements IApiUsable
 
     public function traerVentasPorProducto($request, $response, $args)
     {
-        $tipo = $args['tipo'];
-        $ventas = Vendedor::ventasPorTipo($tipo);
-        
-        if($ventas) {
-            $playload = json_encode(["mensaje" => "Ventas encontradas", "ventas" => $ventas]);
-        } else {
-            $playload = json_encode(["mensaje" => "Ventas no encontradas"]);
-        }
+        $ventas = Vendedor::ventasPorTipo();
+        $playload = $ventas 
+            ? json_encode(["mensaje" => "Ventas encontradas", "ventas" => $ventas])
+            : json_encode(["mensaje" => "No se encontraron ventas"]);
 
         $response->getBody()->write($playload);
         return $response->withHeader('Content-Type', 'application/json');
@@ -156,42 +161,43 @@ class VentaController extends Vendedor  implements IApiUsable
 
     public function traerProductosEntreValores($request, $response, $args)
     {
-        $min = $args['min'];
-        $max = $args['max'];
+        $params = $request->getQueryParams();
+        $min = $params['min'] ?? 0;
+        $max = $params['max'] ?? PHP_INT_MAX;
 
         $productos = Vendedor::ventasEntreValores($min, $max);
 
-        if($productos) {
-            $playload = json_encode(["mensaje" => "Productos encontrados", "productos" => $productos]);
-        } else {
-            $playload = json_encode(["mensaje" => "Productos no encontrados"]);
-        }
+        $playload = $productos 
+            ? json_encode(["mensaje" => "Productos encontrados", "productos" => $productos])
+            : json_encode(["mensaje" => "No se encontraron productos"]);
 
         $response->getBody()->write($playload);
         return $response->withHeader('Content-Type', 'application/json');
     }
 
     public function Ingreso($request, $response, $args) {
-        $params = $request->getParsedBody();
+        $params = $request->getQueryParams();
         $fecha = $params['fecha'] ?? null;
 
-        if($fecha) 
-        {
-            $ingreso = Vendedor::ingresoPorFecha($fecha);
-        }
-        else {
-            $ingreso = Vendedor::ingresosTotales();
-        }
+        $result = $fecha
+            ? Vendedor::ingresoPorFecha($fecha)
+            : Vendedor::ingresosTotales();
 
-        $playload = json_encode(["mensaje" => "Ingresos", "ingresos" => $ingreso]);
+        $playload = $result 
+            ? json_encode(["mensaje" => "Ingresos encontrados", "ingresos" => $result])
+            : json_encode(["mensaje" => "No se encontraron ingresos"]);
 
         $response->getBody()->write($playload);
         return $response->withHeader('Content-Type', 'application/json');
     }
 
     public function traerProductosMasVendido($reques, $response, $args) {
-        $producto = Vendedor::productosMasVendidos();
-        $playload = json_encode(["mensaje" => "Producto mas vendido", "producto" => $producto]);
+        $productos = Vendedor::productosMasVendidos();
+
+        $playload = $productos 
+            ? json_encode(["mensaje" => "Productos encontrados", "productos" => $productos])
+            : json_encode(["mensaje" => "No se encontraron productos"]);
+
         $response->getBody()->write($playload);
         return $response->withHeader('Content-Type', 'application/json');
     }

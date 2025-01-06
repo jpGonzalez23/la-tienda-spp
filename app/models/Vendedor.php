@@ -159,7 +159,6 @@ class Vendedor implements ICrud
         }
     }
 
-
     public static function create($data)
     {
         try {
@@ -235,13 +234,13 @@ class Vendedor implements ICrud
     }
 
     
-    public static function cantidadVendidaPorFecha($fecha) {
+    public static function productosVendidosPorFecha($fecha) {
         try {
             $db = AccesoDatos::obtenerInstancia();
-            $query = $db->prepararConsulta("SELECT * FROM vendedor WHERE fecha_venta = :fecha");
+            $query = $db->prepararConsulta("SELECT nombre, tipo, marca, SUM(stock) as total_vendido FROM vendedor WHERE DATE(fecha_venta) = :fecha");
             $query->bindParam(':fecha', $fecha, PDO::PARAM_STR);
             $query->execute();
-            return $query->fetchAll(PDO::FETCH_ASSOC)['cantidad_vendida'];
+            return $query->fetchAll(PDO::FETCH_ASSOC);
         } catch (Exception $e) {
             return ["Error" => "No se pudo leer los vendedores", "Exception" => $e->getMessage()];
         }
@@ -259,11 +258,10 @@ class Vendedor implements ICrud
         }
     }
 
-    public static function ventasPorTipo($tipo){
+    public static function ventasPorTipo(){
         try {
             $db = AccesoDatos::obtenerInstancia();
-            $query = $db->prepararConsulta("SELECT * FROM vendedor WHERE tipo = :tipo");
-            $query->bindParam(':tipo', $tipo, PDO::PARAM_STR);
+            $query = $db->prepararConsulta("SELECT tipo, SUM(stock) AS total_vendido FROM vendedor GROUP BY tipo");
             $query->execute();
             return $query->fetchAll(PDO::FETCH_ASSOC);
         } catch (Exception $e) {
@@ -289,10 +287,10 @@ class Vendedor implements ICrud
         try 
         {
             $db = AccesoDatos::obtenerInstancia();
-            $query = $db->prepararConsulta("SELECT SUM(precio_total) as ingresos FROM vendedor WHERE DATE(fecha) = :fecha");
+            $query = $db->prepararConsulta("SELECT SUM(precio_total) AS total_ingresos FROM vendedor WHERE DATE(fecha) = :fecha");
             $query->bindValue(':fecha', $fecha, PDO::PARAM_STR);
             $query->execute();
-            return $query->fetch(PDO::FETCH_ASSOC)['ingresos'];
+            return $query->fetch(PDO::FETCH_ASSOC);
         }
         catch (Exception $e) 
         {
@@ -303,9 +301,9 @@ class Vendedor implements ICrud
     public static function ingresosTotales() {
         try {
             $db = AccesoDatos::obtenerInstancia();
-            $query = $db->prepararConsulta("SELECT SUM(precio_total) as ingresos FROM vendedor");
+            $query = $db->prepararConsulta("SELECT SUM(precio_total) AS total_ingresos FROM vendedor");
             $query->execute();
-            return $query->fetch(PDO::FETCH_ASSOC)['ingresos'];
+            return $query->fetch(PDO::FETCH_ASSOC);
         } catch (Exception $e) {
             return ["Error" => "No se pudo leer los vendedores", "Exception" => $e->getMessage()];
         }
@@ -314,7 +312,7 @@ class Vendedor implements ICrud
     public static function productosMasVendidos() {
         try {
             $db = AccesoDatos::obtenerInstancia();
-            $query = $db->prepararConsulta("SELECT nombre, COUNT(nombre) as cantidad FROM vendedor GROUP BY nombre ORDER BY cantidad DESC LIMIT 1");
+            $query = $db->prepararConsulta("SELECT nombre, tipo, marca, SUM(stock) AS total_vendido FROM vendedor GROUP BY nombre, tipo, marca ORDER BY total_vendido DESC LIMIT 1");
             $query->execute();
             return $query->fetchAll(PDO::FETCH_ASSOC);
         } catch (Exception $e) {
