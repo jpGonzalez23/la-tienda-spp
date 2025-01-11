@@ -15,7 +15,7 @@ require __DIR__ . '/../vendor/autoload.php';
 require_once './db/AccesoDatos.php';
 // require_once './middlewares/Logger.php';
 
-//require_once './controllers/UsuarioController.php';
+require_once './controllers/UsuarioController.php';
 require_once './controllers/ProductoController.php';
 require_once './controllers/VentaController.php';
 
@@ -55,6 +55,9 @@ $app->group('/ventas/consultar', function (RouteCollectorProxy $group) {
   $group->get('/ventas/ingresos', \VentaController::class . ':Ingreso');
   $group->get('/productos/mas_vendidos', \VentaController::class . ':traerProductosMasVendido');
 });
+
+
+$app->post('/registro', \UsuarioController::class . ':CargarUno');
 
 /*
 $app->get('[/]', function (Request $request, Response $response) {

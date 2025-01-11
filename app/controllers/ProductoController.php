@@ -100,7 +100,6 @@ class ProductoController extends Producto implements IApiUsable
         $response->getBody()->write($playload);
         return $response->withHeader('Content-Type', 'application/json');
     }
-
     public function TraerUno($request, $response, $args)
     {
         $id = $args['id'];
@@ -122,7 +121,6 @@ class ProductoController extends Producto implements IApiUsable
         $response->getBody()->write($playload);
         return $response->withHeader('Content-Type', 'application/json');
     }
-
     public function TraerUnoPorNombreMarcaTipo($request, $response, $args)
     {
         $params = $request->getParsedBody();

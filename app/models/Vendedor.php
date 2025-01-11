@@ -5,7 +5,6 @@ require_once './db/AccesoDatos.php';
 
 class Vendedor implements ICrud
 {
-
     private $id;
     private $mail;
     private $nombre;
