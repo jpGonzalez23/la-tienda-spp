@@ -15,7 +15,7 @@ require __DIR__ . '/../vendor/autoload.php';
 require_once './db/AccesoDatos.php';
 // require_once './middlewares/Logger.php';
 
-require_once './controllers/UsuarioController.php';
+//require_once './controllers/UsuarioController.php';
 require_once './controllers/ProductoController.php';
 require_once './controllers/VentaController.php';
 
@@ -36,7 +36,6 @@ $app->addBodyParsingMiddleware();
 // Routes
 $app->group('/tienda', function (RouteCollectorProxy $group) {
   $group->post('/alta', \ProductoController::class . ':CargarUno');
-  //$group->post('/consulta', \ProductoController::class . ':TraerTodos');
   $group->get('/consultar', \ProductoController::class . ':TraerTodos');
   $group->post('/consultar/numero_de_producto/{id}', \ProductoController::class . ':TraerUno');
   $group->post('/consultar/nombre/marca/tipo', \ProductoController::class . ':TraerUnoPorNombreMarcaTipo');
@@ -44,6 +43,7 @@ $app->group('/tienda', function (RouteCollectorProxy $group) {
 
 $app->group('/ventas', function (RouteCollectorProxy $group) {
   $group->post('/alta', \VentaController::class . ':CargarUno');
+  $group->put('/modificar/{id}', \VentaController::class . ':ModificarUno');
 });
 
 $app->group('/ventas/consultar', function (RouteCollectorProxy $group) {

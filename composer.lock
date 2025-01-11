@@ -761,12 +761,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/database.git",
-                "reference": "b1ed2fe5d90152800e87dee4ee07721b2d87ca35"
+                "reference": "17395a43ccf1787e9a7baa4a862f7fefb645a317"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/illuminate/database/zipball/b1ed2fe5d90152800e87dee4ee07721b2d87ca35",
-                "reference": "b1ed2fe5d90152800e87dee4ee07721b2d87ca35",
+                "url": "https://api.github.com/repos/illuminate/database/zipball/17395a43ccf1787e9a7baa4a862f7fefb645a317",
+                "reference": "17395a43ccf1787e9a7baa4a862f7fefb645a317",
                 "shasum": ""
             },
             "require": {
@@ -822,7 +822,7 @@
                 "issues": "https://github.com/laravel/framework/issues",
                 "source": "https://github.com/laravel/framework"
             },
-            "time": "2025-01-06T18:31:12+00:00"
+            "time": "2025-01-09T22:56:42+00:00"
         },
         {
             "name": "illuminate/macroable",
@@ -1110,12 +1110,12 @@
             "version": "3.8.4",
             "source": {
                 "type": "git",
-                "url": "https://github.com/briannesbitt/Carbon.git",
+                "url": "https://github.com/CarbonPHP/carbon.git",
                 "reference": "129700ed449b1f02d70272d2ac802357c8c30c58"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/briannesbitt/Carbon/zipball/129700ed449b1f02d70272d2ac802357c8c30c58",
+                "url": "https://api.github.com/repos/CarbonPHP/carbon/zipball/129700ed449b1f02d70272d2ac802357c8c30c58",
                 "reference": "129700ed449b1f02d70272d2ac802357c8c30c58",
                 "shasum": ""
             },

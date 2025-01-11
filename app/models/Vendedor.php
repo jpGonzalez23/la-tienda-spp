@@ -42,8 +42,6 @@ class Vendedor implements ICrud
     {
         if (!empty($mail)) {
             $this->mail = $mail;
-        } else {
-            throw new Exception("El mail no puede estar vacio");
         }
     }
 
@@ -189,7 +187,7 @@ class Vendedor implements ICrud
             $query->bindParam(':id', $id, PDO::PARAM_INT);
             $query->execute();
 
-            return $query->fetch(PDO::FETCH_ASSOC);
+            return $query->fetchObject('Vendedor');
         } catch (Exception $e) {
             return ["Error" => "No se pudo leer el vendedor", "Exception" => $e->getMessage()];
         }
@@ -209,14 +207,15 @@ class Vendedor implements ICrud
     {
         try {
             $db = AccesoDatos::obtenerInstancia();
-            $query = $db->prepararConsulta("UPDATE vendedor SET mail = :mail, nombre = :nombre, tip = :tipo, marca = :marca, stock = :stock WHERE id = :id");
-            $query->bindParam(':id', $data['id'], PDO::PARAM_INT);
-            $query->bindParam(':mail', $data['mail'], PDO::PARAM_STR);
-            $query->bindParam(':nombre', $data['nombre'], PDO::PARAM_STR);
-            $query->bindParam(':tipo', $data['tipo'], PDO::PARAM_STR);
-            $query->bindParam(':marcao', $data['marca'], PDO::PARAM_STR);
-            $query->bindParam(':stock', $data['stock'], PDO::PARAM_INT);
+            $query = $db->prepararConsulta("UPDATE vendedor SET mail = :mail, nombre = :nombre, tipo = :tipo, marca = :marca, stock = :stock WHERE id = :id");
+            $query->bindValue(':id', $data->getId(), PDO::PARAM_INT);
+            $query->bindValue(':mail', $data->getMail(), PDO::PARAM_STR);
+            $query->bindValue(':nombre', $data->getNombreProducto(), PDO::PARAM_STR);
+            $query->bindValue(':tipo', $data->getTipoProducto(), PDO::PARAM_STR);
+            $query->bindValue(':marca', $data->getMarcaProducto(), PDO::PARAM_STR);
+            $query->bindValue(':stock', $data->getStockProducto(), PDO::PARAM_INT);
             $query->execute();
+            return $query->fetchObject('Vendedor');
         } catch (Exception $e) {
             return ["Error" => "No se pudo actualizar el vendedor", "Exception" => $e->getMessage()];
         }
@@ -233,7 +232,6 @@ class Vendedor implements ICrud
         }
     }
 
-    
     public static function productosVendidosPorFecha($fecha) {
         try {
             $db = AccesoDatos::obtenerInstancia();
