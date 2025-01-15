@@ -58,6 +58,7 @@ $app->group('/ventas/consultar', function (RouteCollectorProxy $group) {
 
 
 $app->post('/registro', \UsuarioController::class . ':CargarUno');
+$app->post('/login', \UsuarioController::class . ':Login');
 
 /*
 $app->get('[/]', function (Request $request, Response $response) {

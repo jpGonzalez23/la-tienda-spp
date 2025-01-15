@@ -56,7 +56,7 @@ CREATE TABLE `usuario` (
   `id` int(11) NOT NULL,
   `mail` varchar(30) NOT NULL,
   `usuario` varchar(30) NOT NULL,
-  `contrasenia` varchar(30) NOT NULL,
+  `contrasenia` varchar(200) NOT NULL,
   `perfil` varchar(30) NOT NULL,
   `foto` varchar(30) DEFAULT NULL,
   `fecha_de_alta` datetime NOT NULL,

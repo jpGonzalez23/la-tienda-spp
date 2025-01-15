@@ -2,6 +2,9 @@
 require_once './models/Usuario.php';
 require_once './interfaces/IApiUsable.php';
 
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
+
 class UsuarioController extends Usuario implements IApiUsable
 {
   private $perfilesValidos = ['administrador', 'empleado', 'cliente'];
@@ -11,48 +14,63 @@ class UsuarioController extends Usuario implements IApiUsable
     $params = $request->getParsedBody();
     $files = $request->getUploadedFiles();
 
-    if (empty($params['mail']) || empty($params['usuario']) || empty($params['contrasenia']) || empty($params['perfil'])) {
-      $playload = json_encode(["mensaje" => "Faltan datos"]);
-      $response->getBody()->write($playload);
+    if(empty($params['usuario']) || empty($params['contrasenia']) || empty($params['perfil'])) {
+      $payload = json_encode(["mensaje" => "Faltan datos"]);
+      $response->getBody()->write($payload);
       return $response->withHeader('Content-Type', 'application/json');
     }
 
     $mail = $params['mail'];
     $usuario = $params['usuario'];
-    $contrasenia = password_hash($params['contrasenia'], PASSWORD_DEFAULT);
+    $contrasenia = password_hash($params['contrasenia'], PASSWORD_BCRYPT);
     $perfil = $params['perfil'];
     $fecha_de_alta = date('Y-m-d H:i:s');
-    $foto = $files['foto'] ?? null;
+    $foto = null;
 
-    if (isset($files['foto']) && $files['foto']->getError() === UPLOAD_ERR_OK) {
-      $nombreImagen = "{$usuario}_{$perfil}" . date("Ymd_His") . ".jpg";
-      $rutaImagen = "../public/ImagenesDeUsuarios/2024/{$nombreImagen}";
-
-      if (!is_dir("../public/ImagenesDeUsuarios/2024")) {
-        mkdir("../public/ImagenesDeUsuarios/2024", 0777, true);
-      }
-      $files['foto']->moveTo($rutaImagen);
+    if(!in_array($perfil, $this->perfilesValidos)) {
+      $payload = json_encode(["mensaje" => "Perfil invalido. Perfiles válidos: cliente, empleado, admin."]);
+      $response->getBody()->write($payload);
+      return $response->withHeader('Content-Type', 'application/json');
     }
 
-    if (in_array($perfil, $this->perfilesValidos) === false) {
-      $playload = json_encode(["mensaje" => "Perfil invalido"]);
-      $response->getBody()->write($playload);
-      return $response->withHeader('Content-Type', 'application/json');
-    } else {
+    if(isset($files['foto']) && $files['foto']->getError() === UPLOAD_ERR_OK) {
+      $foto = "{$usuario}_{$perfil}_" . date("Ymd_His") . ".jpg";
+      $rutaFoto = "../public/ImagenesDeUsuarios/{$foto}";
+
+      if(!is_dir("../public/ImagenesDeUsuarios/2024")) {
+        mkdir("../public/ImagenesDeUsuarios/2024", 0777, true);
+      }
+      $files['foto']->moveTo($rutaFoto);
+
+      $usuarioExistente = Usuario::findByMailOrUser($mail, $usuario);
+
+      if($usuarioExistente) {
+        $payload = json_encode(["mensaje" => "Usuario o mail ya existente"]);
+        $response->getBody()->write($payload);
+        return $response->withHeader('Content-Type', 'application/json');
+      }
+
       $user = new Usuario();
       $user->setMail($mail);
       $user->setUsuario($usuario);
       $user->setContrasenia($contrasenia);
       $user->setPerfil($perfil);
+      $user->setFoto($foto);
       $user->setFechaDeAlta($fecha_de_alta);
-      $user->setFoto($nombreImagen);
+      $user->setFechaDeBaja(null);  
+      $resultado = Usuario::create($user);
 
-      Usuario::create($user);
+      if($resultado) {
+        $payload = json_encode(["mensaje" => "Usuario creado con exito"]);
+      }
+      else {
+        $payload = json_encode(["mensaje" => "Error al crear usuario"]);
+      }
 
-      $playload = json_encode(["mensaje" => "Usuario creado con exito"]);
+      $response->getBody()->write($payload);
+      return $response->withHeader('Content-Type', 'application/json');
     }
-    $response->getBody()->write($playload);
-    return $response->withHeader('Content-Type', 'application/json');
+
   }
 
   public function TraerUno($request, $response, $args)
@@ -103,5 +121,70 @@ class UsuarioController extends Usuario implements IApiUsable
     $response->getBody()->write($payload);
     return $response
       ->withHeader('Content-Type', 'application/json');
+  }
+
+  public function Login($request, $response, $args)
+  {
+    $params = $request->getParsedBody();
+    if(empty($params['usuario']) || empty($params['contrasenia'])) {
+      $playload = json_encode(
+        [
+          "mensaje" => "Faltan datos"
+        ]
+      );
+      $response->getBody()->write($playload);
+      return $response->withHeader('Content-Type', 'application/json');
+    }
+
+    $usuario = $params['usuario'];
+    $contrasenia = $params['contrasenia'];
+
+    $usuarioDB = Usuario::read($usuario);
+
+    if(!$usuarioDB) {
+      $playload = json_encode(
+        [
+          "mensaje" => "Usuario no encontrado"
+        ]
+      );
+      $response->getBody()->write($playload);
+      return $response->withHeader('Content-Type', 'application/json');
+    }
+
+    if(!password_verify($contrasenia, $usuarioDB->getContrasenia())) {
+      $playload = json_encode(["mensaje" => "Contraseña incorrecta"]);
+      $response->getBody()->write($playload);
+      return $response->withHeader('Content-Type', 'application/json');
+    }
+
+    $token = $this->generarToken($usuarioDB);
+
+    $playload = json_encode(
+      [
+        "mensaje" => "Login exitoso", 
+        "token" => $token
+      ]
+    );
+
+    $response->getBody()->write($playload);
+    return $response->withHeader('Content-Type', 'application/json');
+  }
+
+  private function generarToken($usuario)
+  {
+    $ahora = time();
+    $expiracion = $ahora + 3600;
+
+    $dataToken = [
+      'iat' => $ahora,
+      'exp' => $expiracion,
+      'data' => [
+        'id' => $usuario->getId(),
+        'usuario' => $usuario->getUsuario(),
+        'perfil' => $usuario->getPerfil()
+      ]
+    ];
+
+    return JWT::encode($dataToken, 'mi_clave_secreta', 'HS256');
   }
 }

@@ -56,135 +56,146 @@ class Usuario implements ICrud
 
     public function setId($id)
     {
-        if (is_numeric($id) && $id > 0) {
-            $this->id = $id;
-        }
+        $this->id = $id;
     }
 
     public function setMail($mail)
     {
-        if (is_string($mail) && strlen($mail) > 0) {
-            $this->mail = $mail;
-        }
+        $this->mail = $mail;
     }
 
 
     public function setUsuario($usuario)
     {
-        if (is_string($usuario) && strlen($usuario) > 0) {
-            $this->usuario = $usuario;
-        }
+        $this->usuario = $usuario;
     }
 
     public function setContrasenia($contrasenia)
     {
-        if (is_string($contrasenia) && strlen($contrasenia) > 0) {
-            $this->contrasenia = $contrasenia;
-        }
+        $this->contrasenia = $contrasenia;
     }
 
     public function setPerfil($perfil)
     {
-        if (is_string($perfil)) {
-            $this->perfil = $perfil;
-        }
+        $this->perfil = $perfil;
     }
 
     public function setFoto($foto)
     {
-        if (!empty($foto)) {
-            $this->foto = $foto;
-        }
+        $this->foto = $foto;
     }
 
     public function setFechaDeAlta($fecha_de_alta)
     {
-        if (is_string($fecha_de_alta) && strlen($fecha_de_alta) > 0) {
-            $this->fecha_de_alta = $fecha_de_alta;
-        }
+        $this->fecha_de_alta = $fecha_de_alta;
     }
 
     public function setFechaDeBaja($fecha_de_baja)
     {
-        if (is_string($fecha_de_baja) && strlen($fecha_de_baja) > 0) {
-            $this->fecha_de_baja = $fecha_de_baja;
-        }
+        $this->fecha_de_baja = $fecha_de_baja;
     }
 
-    public function __construct () {}
+    public function __construct() {}
 
+    /**
+     * Crea un nuevo usuario en la base de datos.
+     *
+     * @param object $data Un objeto que contiene los datos del usuario.
+     * @return int El id del usuario recien creado o un array con el error
+     * @throws Exception Si ocurre un error al crear el usuario
+     */
     public static function create($data)
     {
-        try {
-            $db = AccesoDatos::obtenerInstancia();
-            $querry = $db->prepararConsulta("INSERT INTO usuario (mail, usuario, contrasenia, perfil, foto, fecha_de_alta) VALUES (:mail, :usuario, :contrasenia, :perfil, :foto, :fecha_de_alta)");
-            $querry->bindValue(':mail', $data->getMail(), PDO::PARAM_STR);
-            $querry->bindValue(':usuario', $data->getUsuario(), PDO::PARAM_STR);
-            $querry->bindValue(':contrasenia', $data->getContrasenia(), PDO::PARAM_STR);
-            $querry->bindValue(':perfil', $data->getPerfil(), PDO::PARAM_STR);
-            $querry->bindValue(':foto', $data->getFoto(), PDO::PARAM_STR);
-            $querry->bindValue(':fecha_de_alta', $data->getFechaDeAlta(), PDO::PARAM_STR);
+        $db = AccesoDatos::obtenerInstancia();
+        $querry = $db->prepararConsulta("INSERT INTO usuario (mail, usuario, contrasenia, perfil, foto, fecha_de_alta) VALUES (:mail, :usuario, :contrasenia, :perfil, :foto, :fecha_de_alta)");
+        $querry->bindValue(':mail', $data->getMail(), PDO::PARAM_STR);
+        $querry->bindValue(':usuario', $data->getUsuario(), PDO::PARAM_STR);
+        $querry->bindValue(':contrasenia', $data->getContrasenia(), PDO::PARAM_STR);
+        $querry->bindValue(':perfil', $data->getPerfil(), PDO::PARAM_STR);
+        $querry->bindValue(':foto', $data->getFoto(), PDO::PARAM_STR);
+        $querry->bindValue(':fecha_de_alta', $data->getFechaDeAlta(), PDO::PARAM_STR);
 
-            $querry->execute();
+        $querry->execute();
 
-            return $db->obtenerUltimoId();
-        } catch (Exception $e) {
-            return ["error" => "Error al crear el usuario", "exception" => $e->getMessage()];
-        }
+        return $db->obtenerUltimoId();
     }
 
+    /**
+     * Lee un usuario de la base de datos
+     *
+     * @param string $data El usuario a leer
+     *
+     * @return Usuario El usuario leido, o un array con la clave "error" y "exception" en caso de error
+     */
     public static function read($data)
     {
-        try {
-            $db = AccesoDatos::obtenerInstancia();
-            $querry = $db->prepararConsulta("SELECT * FROM usuario WHERE usuario = :usuario AND contrasenia = :contrasenia");
-            $querry->bindValue(':usuario', $data->getUsuario(), PDO::PARAM_STR);
-            $querry->bindValue(':contrasenia', $data->getContrasenia(), PDO::PARAM_STR);
-            $querry->execute();
+        $db = AccesoDatos::obtenerInstancia();
+        $querry = $db->prepararConsulta("SELECT * FROM usuario WHERE usuario = :usuario");
+        $querry->bindValue(':usuario', $data, PDO::PARAM_STR);
+        $querry->execute();
 
-            return $querry->fetchAll(PDO::FETCH_CLASS, 'Usuario');
-        } catch (Exception $e) {
-            return ["error" => "Error al leer el usuario", "exception" => $e->getMessage()];
-        }
+        return $querry->fetchObject('Usuario');
     }
-
     public static function readAll()
     {
-        try {
-            $objAccesoDatos = AccesoDatos::obtenerInstancia();
-            $consulta = $objAccesoDatos->prepararConsulta("SELECT * FROM usuario");
-            $consulta->execute();
-            return $consulta->fetchObject('Usuario');
-        } catch (Exception $e) {
-            return ["error" => "Error al leer todos los usuarios", "exception" => $e->getMessage()];
-        }
+        $objAccesoDatos = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDatos->prepararConsulta("SELECT * FROM usuario");
+        $consulta->execute();
+        return $consulta->fetchObject('Usuario');
     }
 
+    /**
+     * Actualiza un usuario en la base de datos.
+     *
+     * @param object $data Un objeto que contiene los datos del usuario.
+     * @return void
+     * @throws Exception Si ocurre un error al actualizar el usuario
+     */
     public static function update($data)
     {
-        try {
-            $objAccesoDato = AccesoDatos::obtenerInstancia();
-            $consulta = $objAccesoDato->prepararConsulta("UPDATE usuario SET usuario = :usuario, contrasenia = :contrasenia WHERE id = :id");
-            $consulta->bindValue(':usuario', $data->getUsuario(), PDO::PARAM_STR);
-            $consulta->bindValue(':contrasenia', $data->getContrasenia(), PDO::PARAM_STR);
-            $consulta->bindValue(':id', $data->getId(), PDO::PARAM_INT);
-            $consulta->execute();
-        } catch (Exception $e) {
-            return ["error" => "Error al actualizar el usuario", "exception" => $e->getMessage()];
-        }
+        $objAccesoDato = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDato->prepararConsulta("UPDATE usuario SET usuario = :usuario, contrasenia = :contrasenia WHERE id = :id");
+        $consulta->bindValue(':usuario', $data->getUsuario(), PDO::PARAM_STR);
+        $consulta->bindValue(':contrasenia', $data->getContrasenia(), PDO::PARAM_STR);
+        $consulta->bindValue(':id', $data->getId(), PDO::PARAM_INT);
+        $consulta->execute();
     }
+
+    /**
+     * Marca un usuario como eliminado en la base de datos.
+     *
+     * @param int $usuario El ID del usuario a eliminar.
+     * @return array|null Retorna un array con el mensaje de error y excepción en caso de ocurrir un error, o null si la operación fue exitosa.
+     * @throws Exception Si ocurre un error al marcar al usuario como eliminado.
+     */
 
     public static function delete($usuario)
     {
-        try {
-            $objAccesoDato = AccesoDatos::obtenerInstancia();
-            $consulta = $objAccesoDato->prepararConsulta("UPDATE usuario SET fecha_de_baja = :fecha_de_baja WHERE id = :id");
-            $fecha = new DateTime(date("d-m-Y"));
-            $consulta->bindValue(':id', $usuario, PDO::PARAM_INT);
-            $consulta->bindValue(':fecha_de_baja', date_format($fecha, 'Y-m-d H:i:s'));
-            $consulta->execute();
-        } catch (Exception $e) {
-            return ["error" => "Error al eliminar el usuario", "exception" => $e->getMessage()];
-        }
+        $objAccesoDato = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDato->prepararConsulta("UPDATE usuario SET fecha_de_baja = :fecha_de_baja WHERE id = :id");
+        $fecha = new DateTime(date("d-m-Y"));
+        $consulta->bindValue(':id', $usuario, PDO::PARAM_INT);
+        $consulta->bindValue(':fecha_de_baja', date_format($fecha, 'Y-m-d H:i:s'));
+        $consulta->execute();
+    }
+    /**
+     * Busca un usuario por su mail o nombre de usuario.
+     *
+     * @param string $mail El mail del usuario a buscar.
+     * @param string $user El nombre de usuario del usuario a buscar.
+     *
+     * @return Usuario El usuario encontrado, o un array con la clave "error" y "exception" en caso de error.
+     *
+     * @throws Exception Si ocurre un error al buscar el usuario.
+     */
+    public static function findByMailOrUser($mail, $user)
+    {
+        $db = AccesoDatos::obtenerInstancia();
+        $querry = $db->prepararConsulta("SELECT * FROM usuario WHERE mail = :mail OR usuario = :usuario");
+        $querry->bindValue(':mail', $mail, PDO::PARAM_STR);
+        $querry->bindValue(':usuario', $user, PDO::PARAM_STR);
+        $querry->execute();
+
+        return $querry->fetchObject('Usuario');
     }
 }
