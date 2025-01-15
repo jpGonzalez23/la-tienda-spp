@@ -13,7 +13,7 @@ use Slim\Routing\RouteContext;
 require __DIR__ . '/../vendor/autoload.php';
 
 require_once './db/AccesoDatos.php';
-// require_once './middlewares/Logger.php';
+require_once './middlewares/ConfirmarPerfil.php';
 
 require_once './controllers/UsuarioController.php';
 require_once './controllers/ProductoController.php';
@@ -35,15 +35,15 @@ $app->addBodyParsingMiddleware();
 
 // Routes
 $app->group('/tienda', function (RouteCollectorProxy $group) {
-  $group->post('/alta', \ProductoController::class . ':CargarUno');
+  $group->post('/alta', \ProductoController::class . ':CargarUno')->add(new ConfirmarPerfil(['admin']));
   $group->get('/consultar', \ProductoController::class . ':TraerTodos');
   $group->post('/consultar/numero_de_producto/{id}', \ProductoController::class . ':TraerUno');
   $group->post('/consultar/nombre/marca/tipo', \ProductoController::class . ':TraerUnoPorNombreMarcaTipo');
 });
 
 $app->group('/ventas', function (RouteCollectorProxy $group) {
-  $group->post('/alta', \VentaController::class . ':CargarUno');
-  $group->put('/modificar/{id}', \VentaController::class . ':ModificarUno');
+  $group->post('/alta', \VentaController::class . ':CargarUno')->add(new ConfirmarPerfil(['admin', 'empleado']));;
+  $group->put('/modificar/{id}', \VentaController::class . ':ModificarUno')->add(new ConfirmarPerfil(['admin']));
 });
 
 $app->group('/ventas/consultar', function (RouteCollectorProxy $group) {
@@ -52,9 +52,9 @@ $app->group('/ventas/consultar', function (RouteCollectorProxy $group) {
   $group->get('/ventas/por_usuario', \VentaController::class . ':TraerVentasPorUsuario');
   $group->get('/ventas/por_producto', \VentaController::class . ':traerVentasPorProducto');
   $group->get('/productos/entreValores', \VentaController::class . ':traerProductosEntreValores');
-  $group->get('/ventas/ingresos', \VentaController::class . ':Ingreso');
+  $group->get('/ventas/ingresos', \VentaController::class . ':Ingreso')->add(new ConfirmarPerfil(['admin']));
   $group->get('/productos/mas_vendidos', \VentaController::class . ':traerProductosMasVendido');
-});
+})->add(new ConfirmarPerfil(['admin', 'empleado']));;
 
 
 $app->post('/registro', \UsuarioController::class . ':CargarUno');
